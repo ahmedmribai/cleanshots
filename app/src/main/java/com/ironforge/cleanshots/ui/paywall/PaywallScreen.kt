@@ -37,7 +37,7 @@ import com.ironforge.cleanshots.ui.theme.Accent
 import com.ironforge.cleanshots.ui.theme.Muted
 
 // Set to the hosted privacy policy before release; the link is hidden while blank.
-private const val PRIVACY_POLICY_URL = ""
+private const val PRIVACY_POLICY_URL = "https://ahmedmribai.github.io/cleanshots/"
 
 private tailrec fun Context.findActivity(): Activity? = when (this) {
     is Activity -> this
