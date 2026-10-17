@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- photo card -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M36,32h36a4,4 0,0 1,4 4v36a4,4 0,0 1,-4 4h-36a4,4 0,0 1,-4 -4v-36a4,4 0,0 1,4 -4z" />
+    <!-- mountains -->
+    <path android:fillColor="#1565C0"
+        android:pathData="M36,70l11,-15l8,10l6,-7l11,12z" />
+    <!-- sun -->
+    <path android:fillColor="#00C2A8"
+        android:pathData="M60,43m-5,0a5,5 0,1 1,10 0a5,5 0,1 1,-10 0" />
+    <!-- sparkle -->
+    <path android:fillColor="#FFD54F"
+        android:pathData="M74,26l2,6l6,2l-6,2l-2,6l-2,-6l-6,-2l6,-2z" />
+</vector>
