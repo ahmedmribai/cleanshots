@@ -45,7 +45,7 @@ fun BlurryScreen(scanVm: ScanViewModel) {
                         Spacer(Modifier.width(10.dp))
                         Column {
                             Text(img.displayName, maxLines = 1)
-                            Text("blur ${String.format("%.1f", img.blurScore ?: 0f)} • ${formatBytes(img.size)}", color = Muted)
+                            Text("blur ${String.format(java.util.Locale.getDefault(), "%.1f", img.blurScore ?: 0f)} • ${formatBytes(img.size)}", color = Muted)
                         }
                     }
                 }
