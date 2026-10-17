@@ -12,9 +12,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AutoAwesome
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.Restore
+import androidx.compose.material.icons.rounded.Shield
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
+import com.ironforge.cleanshots.ui.components.GradientButton
+import com.ironforge.cleanshots.ui.components.GradientIconBadge
+import com.ironforge.cleanshots.ui.components.ProgressRing
+import com.ironforge.cleanshots.ui.components.enterAnimation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,8 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ironforge.cleanshots.ui.theme.Accent
@@ -69,20 +83,55 @@ fun PermissionGate(content: @Composable (access: String, reselect: () -> Unit) -
     }
 
     if (access == "denied" && showRationale) {
-        Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("Free up space in three taps", fontSize = 22.sp, fontWeight = FontWeight.Bold)
-            Spacer(Modifier.height(12.dp))
-            Text("CleanShots finds screenshots, duplicate photos and blurry photos so you can remove them.", color = Muted)
-            Spacer(Modifier.height(12.dp))
-            Text("To do that it needs to read your photos.")
-            Text("Everything is analysed on your device. Nothing is uploaded, and deleted photos go to Trash first so you can undo.", color = Muted)
-            Spacer(Modifier.height(16.dp))
-            Button(
-                onClick = { launcher.launch(requiredPermissions()) },
-                colors = ButtonDefaults.buttonColors(containerColor = Accent, contentColor = androidx.compose.ui.graphics.Color.Black)
-            ) { Text("Allow photo access") }
-        }
+        Onboarding(onAllow = { launcher.launch(requiredPermissions()) })
     } else {
         content(access) { launcher.launch(requiredPermissions()) }
+    }
+}
+
+@Composable
+private fun Onboarding(onAllow: () -> Unit) {
+    Column(
+        Modifier.fillMaxSize().systemBarsPadding().padding(24.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ProgressRing(1f, Modifier.size(150.dp).enterAnimation(0), strokeWidth = 10.dp) {
+            Icon(Icons.Rounded.AutoAwesome, contentDescription = null, tint = Accent, modifier = Modifier.size(56.dp))
+        }
+        Spacer(Modifier.height(28.dp))
+        Text(
+            "A lighter gallery in minutes",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.enterAnimation(1)
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "CleanShots finds screenshots, duplicate and blurry photos so you can clear them in a few taps.",
+            color = Muted,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.enterAnimation(1)
+        )
+        Spacer(Modifier.height(28.dp))
+        Column(Modifier.enterAnimation(2), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Promise(Icons.Rounded.PhoneAndroid, "Analysed on your phone", "Your photos are never uploaded")
+            Promise(Icons.Rounded.Restore, "Trash first, always", "Undo anything for 30 days")
+            Promise(Icons.Rounded.Shield, "You stay in control", "Android asks before anything is removed")
+        }
+        Spacer(Modifier.height(32.dp))
+        GradientButton("Allow photo access", onClick = onAllow, modifier = Modifier.fillMaxWidth().enterAnimation(3))
+    }
+}
+
+@Composable
+private fun Promise(icon: ImageVector, title: String, subtitle: String) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        GradientIconBadge(icon)
+        Spacer(Modifier.width(14.dp))
+        Column {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Text(subtitle, color = Muted, style = MaterialTheme.typography.bodySmall)
+        }
     }
 }

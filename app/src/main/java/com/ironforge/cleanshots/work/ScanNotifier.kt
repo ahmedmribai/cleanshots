@@ -46,7 +46,6 @@ object ScanNotifier {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
     private fun ensureChannel(context: Context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(CHANNEL_ID, "Weekly scan", NotificationManager.IMPORTANCE_LOW)
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
