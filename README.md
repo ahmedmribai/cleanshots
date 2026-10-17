@@ -32,3 +32,25 @@ Create `local.properties` with `sdk.dir=...` if Android Studio has not.
 - Photo permission declaration video: show scan -> duplicates -> trash -> restore
 - Title/desc match real function, no virus/boost claims
 - `bundleRelease` signed AAB (add a signing config), R8 already on, logs stripped
+
+## Tools
+- `python tools/translations/generate.py` rebuilds `values-*/strings.xml` from `tools/translations/*.py`
+  and fails on missing keys or mismatched placeholders. Add new English strings to `values/strings.xml`
+  first, then to every language table.
+- `python tools/benchmark/make_library.py <dir>` builds a labelled ~4.5k-photo test library (real photos
+  from picsum.photos plus generated duplicates, blurred, dark, screenshots and videos). Push it to a
+  device, scan with a debug build (it logs `scan_done` with timings), pull `databases/cleanshots.db`
+  with `adb exec-out run-as` and run `python tools/benchmark/evaluate.py <db>` for accuracy.
+- `python tools/store/make_assets.py <raw_screens_dir>` renders the Play icon, feature graphic and
+  captioned screenshots into `store/`. Listing copy and Data safety answers are in `store/listing-en.md`.
+
+### Benchmark (emulator, 2 cores, 4,533 photos)
+| | Result |
+|---|---|
+| First scan | 147 s (~32 ms/photo); phones with more cores are faster |
+| Rescan, nothing changed | 1.9 s |
+| Blurry: clearly blurred shots caught | ~70 % |
+| Blurry: false alarms on natural photos | ~1 % (mostly fog, sky and bokeh) |
+| Duplicates: exact/re-encoded/resized sets found | 95 % |
+| Duplicates: suggestions that are lookalikes, not copies | ~2 % (Smart Clean pre-selects for review) |
+| Cropped or edited near-duplicates | not detected |

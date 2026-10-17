@@ -1,0 +1,9 @@
+<resources>
+    <style name="Theme.CleanShots" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">#07090D</item>
+        <item name="android:statusBarColor">#07090D</item>
+        <item name="android:navigationBarColor">#07090D</item>
+        <item name="android:windowSplashScreenBackground">#07090D</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+    </style>
+</resources>

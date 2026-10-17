@@ -48,6 +48,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -257,7 +258,9 @@ private fun ReviewCard(image: ScannedImage, modifier: Modifier, stamp: Float = 0
             .background(SurfaceHigh)
             .border(1.dp, Stroke, shape)
     ) {
-        Photo(image.contentUri, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
+        // Blurred, enlarged copy fills the letterbox so landscape photos don't float in empty space.
+        Photo(image.contentUri, Modifier.fillMaxSize().blur(36.dp).graphicsLayer { alpha = 0.5f })
+        Photo(image.contentUri, Modifier.fillMaxSize(), contentScale = ContentScale.Fit, placeholder = Color.Transparent)
         Box(Modifier.matchParentSize().background(Danger.copy(alpha = 0.28f * (-stamp).coerceAtLeast(0f))))
         Box(Modifier.matchParentSize().background(Accent.copy(alpha = 0.22f * stamp.coerceAtLeast(0f))))
         Stamp(stringResource(R.string.stamp_clean), Danger, alpha = (-stamp).coerceAtLeast(0f), rotation = 12f, modifier = Modifier.align(Alignment.TopEnd))

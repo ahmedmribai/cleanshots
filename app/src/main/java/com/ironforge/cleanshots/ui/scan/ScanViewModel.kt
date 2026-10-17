@@ -1,5 +1,7 @@
 package com.ironforge.cleanshots.ui.scan
 
+import android.os.SystemClock
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -20,32 +22,54 @@ data class ScanUi(
     val shotsBytes: Long = 0L,
     val groups: List<DuplicateGroup> = emptyList(),
     val blurry: List<ScannedImage> = emptyList(),
-    val videos: List<VideoItem> = emptyList()
+    val videos: List<VideoItem> = emptyList(),
+    /** False until the first results (cached or fresh) have been loaded. */
+    val loaded: Boolean = false
 )
+
+private const val TAG = "CleanShots"
 
 class ScanViewModel(private val repo: ScanRepository) : ViewModel() {
     private val _ui = MutableStateFlow(ScanUi())
     val ui: StateFlow<ScanUi> = _ui
     private var job: Job? = null
 
+    /** Set by Smart Clean on Home; Duplicates consumes it to pre-select every extra copy for review. */
+    private val _smartSelect = MutableStateFlow(false)
+    val smartSelect: StateFlow<Boolean> = _smartSelect
+
+    fun requestSmartSelect() { _smartSelect.value = true }
+    fun consumeSmartSelect() { _smartSelect.value = false }
+
     fun start() {
         if (_ui.value.scanning) return
         job?.cancel()
         job = viewModelScope.launch {
             _ui.value = _ui.value.copy(scanning = true)
+            // Show the previous scan's results immediately instead of an empty screen.
+            if (!hasLoaded) loadResults()
+            val started = SystemClock.elapsedRealtime()
             repo.fullScan().collect { p ->
-                _ui.value = _ui.value.copy(progress = p, scanning = p.phase != "Done")
+                _ui.value = _ui.value.copy(progress = p)
             }
-            refresh()
+            loadResults()
+            _ui.value = _ui.value.copy(scanning = false)
+            // Stripped from release builds by proguard-rules.pro; used by tools/benchmark.
+            val ui = _ui.value
+            Log.i(TAG, "scan_done ms=${SystemClock.elapsedRealtime() - started} hashed=${ui.progress?.total} " +
+                "shots=${ui.shots.size} groups=${ui.groups.size} blurry=${ui.blurry.size} videos=${ui.videos.size}")
         }
     }
 
-    suspend fun refresh() {
+    private var hasLoaded = false
+
+    private suspend fun loadResults() {
         val (shots, bytes) = repo.screenshots()
         val groups = repo.duplicateGroups()
         val blurry = repo.blurry()
         val videos = repo.largeVideos()
-        _ui.value = _ui.value.copy(shots = shots, shotsBytes = bytes, groups = groups, blurry = blurry, videos = videos, scanning = false)
+        _ui.value = _ui.value.copy(shots = shots, shotsBytes = bytes, groups = groups, blurry = blurry, videos = videos, loaded = true)
+        hasLoaded = true
     }
 
     /** Hides trashed items right away; the next scan prunes their DB rows. */
@@ -77,7 +101,7 @@ class ScanViewModel(private val repo: ScanRepository) : ViewModel() {
 
     class Factory(private val repo: ScanRepository) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(c: Class<T>): T = ScanViewModel(repo) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = ScanViewModel(repo) as T
     }
 }
 

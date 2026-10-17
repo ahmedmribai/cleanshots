@@ -55,10 +55,15 @@ import com.ironforge.cleanshots.ui.theme.OnAccent
 import com.ironforge.cleanshots.ui.theme.SurfaceHigh
 
 @Composable
-fun Photo(uri: String, modifier: Modifier = Modifier, contentScale: ContentScale = ContentScale.Crop) {
+fun Photo(
+    uri: String,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Crop,
+    placeholder: Color = SurfaceHigh
+) {
     val ctx = LocalContext.current
     val request = remember(uri) { ImageRequest.Builder(ctx).data(uri.toUri()).crossfade(220).build() }
-    AsyncImage(model = request, contentDescription = null, modifier = modifier.background(SurfaceHigh), contentScale = contentScale)
+    AsyncImage(model = request, contentDescription = null, modifier = modifier.background(placeholder), contentScale = contentScale)
 }
 
 /** Grid tile that shrinks, dims and shows an animated check when selected. Long-press opens [onLongClick]. */

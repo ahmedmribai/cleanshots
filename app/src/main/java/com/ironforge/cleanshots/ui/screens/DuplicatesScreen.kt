@@ -24,6 +24,7 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,13 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
     val extraIds = remember(extras) { extras.mapTo(HashSet()) { it.mediaId } }
     val live = selected intersect extraIds
     val chosen = extras.filter { it.mediaId in live }
+    val smartSelect by scanVm.smartSelect.collectAsState()
+    LaunchedEffect(smartSelect, extraIds) {
+        if (smartSelect && extraIds.isNotEmpty()) {
+            selected = extraIds
+            scanVm.consumeSmartSelect()
+        }
+    }
 
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {

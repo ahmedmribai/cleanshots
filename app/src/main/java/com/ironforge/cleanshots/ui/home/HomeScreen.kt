@@ -105,7 +105,7 @@ fun HomeScreen(
             Column(Modifier.enterAnimation(2)) {
                 GradientButton(
                     stringResource(R.string.smart_clean_button, formatBytes(extrasBytes)),
-                    onClick = { cleaner.clean(extras) },
+                    onClick = { scanVm.requestSmartSelect(); onOpen("dupes") },
                     leading = Icons.Rounded.AutoAwesome,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -120,10 +120,10 @@ fun HomeScreen(
             }
         }
 
-        CategoryCard(Icons.Rounded.Screenshot, stringResource(R.string.tab_screenshots), ui.shots.size, ui.shotsBytes, ui.shots, Modifier.enterAnimation(3)) { onOpen("shots") }
-        CategoryCard(Icons.Rounded.ContentCopy, stringResource(R.string.tab_duplicates), extras.size, extrasBytes, extras, Modifier.enterAnimation(4)) { onOpen("dupes") }
-        CategoryCard(Icons.Rounded.VideoLibrary, stringResource(R.string.category_large_videos), ui.videos.size, videoBytes, ui.videos, Modifier.enterAnimation(5)) { onOpen("videos") }
-        CategoryCard(Icons.Rounded.BlurOn, stringResource(R.string.category_blurry), ui.blurry.size, blurryBytes, ui.blurry, Modifier.enterAnimation(5)) { onOpen("blurry") }
+        CategoryCard(Icons.Rounded.Screenshot, stringResource(R.string.tab_screenshots), ui.shots.size, ui.shotsBytes, ui.shots, Modifier.enterAnimation(3), loaded = ui.loaded) { onOpen("shots") }
+        CategoryCard(Icons.Rounded.ContentCopy, stringResource(R.string.tab_duplicates), extras.size, extrasBytes, extras, Modifier.enterAnimation(4), loaded = ui.loaded) { onOpen("dupes") }
+        CategoryCard(Icons.Rounded.VideoLibrary, stringResource(R.string.category_large_videos), ui.videos.size, videoBytes, ui.videos, Modifier.enterAnimation(5), loaded = ui.loaded) { onOpen("videos") }
+        CategoryCard(Icons.Rounded.BlurOn, stringResource(R.string.category_blurry), ui.blurry.size, blurryBytes, ui.blurry, Modifier.enterAnimation(5), loaded = ui.loaded) { onOpen("blurry") }
 
         GlassCard(Modifier.fillMaxWidth().enterAnimation(6), onClick = if (reviewCount > 0) onReview else null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -212,6 +212,7 @@ private fun CategoryCard(
     bytes: Long,
     previews: List<Cleanable>,
     modifier: Modifier,
+    loaded: Boolean,
     onClick: () -> Unit
 ) {
     GlassCard(modifier.fillMaxWidth(), onClick = onClick) {
@@ -220,7 +221,7 @@ private fun CategoryCard(
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(if (count == 0) stringResource(R.string.category_none) else stringResource(R.string.count_and_size, count, formatBytes(bytes)), color = Muted, style = MaterialTheme.typography.bodySmall)
+                Text(if (!loaded) "…" else if (count == 0) stringResource(R.string.category_none) else stringResource(R.string.count_and_size, count, formatBytes(bytes)), color = Muted, style = MaterialTheme.typography.bodySmall)
             }
             ThumbStack(previews.take(3))
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = Muted)

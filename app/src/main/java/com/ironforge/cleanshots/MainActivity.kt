@@ -35,6 +35,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Snackbar
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -90,15 +91,18 @@ class MainActivity : ComponentActivity() {
         app.container.billing.start()
         setContent {
             CleanShotsTheme {
-                PermissionGate { access, _ ->
-                    AppShell(access)
+                // Gives every screen (onboarding and paywall included) light text on the dark background.
+                Surface(color = Background, contentColor = OnDark) {
+                    PermissionGate { access, _ ->
+                        AppShell(access)
+                    }
                 }
             }
         }
     }
 }
 
-private data class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector)
+private data class Tab(val route: String, @param:StringRes val label: Int, val icon: ImageVector)
 
 private val TABS = listOf(
     Tab("home", R.string.tab_home, Icons.Rounded.Home),
@@ -192,7 +196,9 @@ private fun AppShell(access: String) {
                     )
                 }
                 composable(REVIEW_ROUTE) {
-                    val candidates = remember { (scanUi.shots + scanUi.blurry).distinctBy { it.mediaId } }
+                    val candidates = remember {
+                        (scanUi.shots + scanUi.blurry).distinctBy { it.mediaId }.sortedByDescending { it.dateAdded }
+                    }
                     SwipeReviewScreen(candidates, cleaner, onClose = { nav.popBackStack() })
                 }
             }

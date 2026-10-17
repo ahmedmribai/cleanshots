@@ -94,7 +94,10 @@ object HashUtils {
      * otherwise it starts its own group. Unlike transitive union-find this cannot chain
      * unrelated images together through intermediate neighbours.
      */
-    fun groupNearDuplicates(hashes: List<Long>, threshold: Int = 5): List<List<Int>> {
+    /** Default distance from tools/benchmark: 95 % of exact-copy sets found, ~2 % lookalikes suggested. */
+    const val DUPLICATE_DISTANCE = 4
+
+    fun groupNearDuplicates(hashes: List<Long>, threshold: Int = DUPLICATE_DISTANCE): List<List<Int>> {
         val leaders = BKTree()
         val members = HashMap<Int, MutableList<Int>>()
         hashes.forEachIndexed { i, h ->

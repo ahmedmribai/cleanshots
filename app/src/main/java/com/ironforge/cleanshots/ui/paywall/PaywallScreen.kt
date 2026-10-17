@@ -87,7 +87,7 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
-private data class Plan(val id: String, @StringRes val title: Int, @StringRes val period: Int, @StringRes val badge: Int?)
+private data class Plan(val id: String, @param:StringRes val title: Int, @param:StringRes val period: Int, @param:StringRes val badge: Int?)
 
 private val PLANS = listOf(
     Plan(Products.LIFETIME, R.string.plan_lifetime, R.string.plan_lifetime_period, R.string.plan_best_value),

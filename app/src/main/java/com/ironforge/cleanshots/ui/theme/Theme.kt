@@ -6,12 +6,16 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
 import com.ironforge.cleanshots.R
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 
 val Background = Color(0xFF07090D)
@@ -84,7 +88,21 @@ private fun Typography.withFamily(family: FontFamily) = Typography(
     labelSmall = labelSmall.copy(fontFamily = family)
 )
 
+/** Letter-spacing breaks joined scripts such as Arabic, so RTL layouts get untracked text. */
+private val RtlTypography = AppTypography.let { t ->
+    fun TextStyle.untracked() = copy(letterSpacing = TextUnit.Unspecified)
+    t.copy(
+        displayMedium = t.displayMedium.untracked(),
+        displaySmall = t.displaySmall.untracked(),
+        headlineMedium = t.headlineMedium.untracked(),
+        headlineSmall = t.headlineSmall.untracked(),
+        labelLarge = t.labelLarge.untracked(),
+        labelSmall = t.labelSmall.untracked()
+    )
+}
+
 @Composable
 fun CleanShotsTheme(content: @Composable () -> Unit) {
-    MaterialTheme(colorScheme = Scheme, typography = AppTypography, content = content)
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    MaterialTheme(colorScheme = Scheme, typography = if (rtl) RtlTypography else AppTypography, content = content)
 }

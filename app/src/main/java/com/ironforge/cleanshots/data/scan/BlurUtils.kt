@@ -3,7 +3,11 @@ package com.ironforge.cleanshots.data.scan
 import android.graphics.Bitmap
 
 object BlurUtils {
-    const val DEFAULT_THRESHOLD = 100.0
+    /**
+     * Calibrated on a labelled 4.5k-photo library (tools/benchmark): catches ~70 % of clearly blurred
+     * shots with ~1 % false alarms, mostly intentionally soft photos (fog, sky, bokeh).
+     */
+    const val DEFAULT_THRESHOLD = 30.0
 
     /** Score used for images that cannot be judged (too small, too dark or too flat); never below any threshold. */
     const val UNMEASURABLE = 1_000_000.0

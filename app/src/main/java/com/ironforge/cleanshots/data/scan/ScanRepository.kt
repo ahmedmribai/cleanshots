@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.CancellationSignal
 import android.util.Size
+import androidx.core.graphics.scale
 import com.ironforge.cleanshots.data.db.ScanDao
 import com.ironforge.cleanshots.data.db.ScannedImage
 import kotlinx.coroutines.Dispatchers
@@ -18,6 +19,7 @@ import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import kotlin.math.roundToInt
 
 /** [total] is 0 while the size of the work is still unknown (the "Listing" phase). */
 data class ScanProgress(val done: Int, val total: Int, val phase: String)
@@ -33,7 +35,7 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
 
         val toHash = all.filter { stamps[it.id] != it.dateModified }
         var done = 0
-        val cores = (Runtime.getRuntime().availableProcessors() - 1).coerceAtLeast(2)
+        val cores = Runtime.getRuntime().availableProcessors().coerceAtLeast(2)
         toHash.chunked(HASH_CHUNK).forEach { chunk ->
             currentCoroutineContext().ensureActive()
             val batch = coroutineScope {
@@ -99,12 +101,22 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
         }
     }
 
-    private fun loadThumb(uri: Uri): Bitmap? = try {
+    /**
+     * Decodes straight from the file with JPEG DCT scaling (much faster than MediaStore's thumbnail
+     * service on a first scan), then normalises to [THUMB_PX] so blur scores are comparable across
+     * camera resolutions. Falls back to the system thumbnail for formats BitmapFactory can't read.
+     */
+    private fun loadThumb(uri: Uri): Bitmap? {
+        val decoded = try { decodeSampled(uri) } catch (_: Exception) { null }
+            ?: systemThumbnail(uri)
+            ?: return null
+        return normalise(decoded)
+    }
+
+    private fun systemThumbnail(uri: Uri): Bitmap? = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             context.contentResolver.loadThumbnail(uri, Size(THUMB_PX, THUMB_PX), null)
-        } else {
-            decodeSampled(uri)
-        }
+        } else null
     } catch (_: Exception) {
         null
     }
@@ -113,10 +125,21 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
         val resolver = context.contentResolver
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, bounds) }
+        if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
         var sample = 1
-        while (bounds.outWidth / (sample * 2) >= THUMB_PX && bounds.outHeight / (sample * 2) >= THUMB_PX) sample *= 2
+        val longest = maxOf(bounds.outWidth, bounds.outHeight)
+        while (longest / (sample * 2) >= THUMB_PX) sample *= 2
         val opts = BitmapFactory.Options().apply { inSampleSize = sample }
         return resolver.openInputStream(uri)?.use { BitmapFactory.decodeStream(it, null, opts) }
+    }
+
+    private fun normalise(src: Bitmap): Bitmap {
+        val longest = maxOf(src.width, src.height)
+        if (longest <= THUMB_PX) return src
+        val scale = THUMB_PX.toFloat() / longest
+        val out = src.scale((src.width * scale).roundToInt().coerceAtLeast(1), (src.height * scale).roundToInt().coerceAtLeast(1))
+        if (out !== src) src.recycle()
+        return out
     }
 
     suspend fun screenshots(): Pair<List<ScannedImage>, Long> = withContext(Dispatchers.Default) {
@@ -124,8 +147,11 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
         shots to shots.sumOf { it.size }
     }
 
-    suspend fun duplicateGroups(threshold: Int = 5): List<DuplicateGroup> = withContext(Dispatchers.Default) {
-        val all = dao.getAllHashed().filter { it.dhash != null }
+    /** Screenshots are excluded: app UIs hash alike, and they have their own category anyway. */
+    suspend fun duplicateGroups(threshold: Int = HashUtils.DUPLICATE_DISTANCE): List<DuplicateGroup> = withContext(Dispatchers.Default) {
+        val all = dao.getAllHashed().filter {
+            it.dhash != null && !MediaStoreScanner.isScreenshot(it.relativePath, it.bucket, it.displayName)
+        }
         if (all.size < 2) return@withContext emptyList()
         val groups = HashUtils.groupNearDuplicates(all.map { it.dhash!! }, threshold)
         groups.map { idxs ->

@@ -64,6 +64,6 @@ class TrashViewModel(
 
     class Factory(private val dao: TrashDao, private val prefs: PrefsManager) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(c: Class<T>): T = TrashViewModel(dao, prefs) as T
+        override fun <T : ViewModel> create(modelClass: Class<T>): T = TrashViewModel(dao, prefs) as T
     }
 }
