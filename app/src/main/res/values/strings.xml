@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">CleanShots</string>
+    <string name="pro_name" translatable="false">CleanShots Pro</string>
+
+    <!-- Tabs -->
+    <string name="tab_home">Home</string>
+    <string name="tab_screenshots">Screenshots</string>
+    <string name="tab_duplicates">Duplicates</string>
+    <string name="tab_videos">Videos</string>
+    <string name="tab_trash">Trash</string>
+
+    <!-- Home -->
+    <string name="home_title">Your gallery</string>
+    <string name="badge_pro">PRO</string>
+    <plurals name="free_left">
+        <item quantity="one">%d FREE LEFT</item>
+        <item quantity="other">%d FREE LEFT</item>
+    </plurals>
+    <string name="smart_clean_button">Smart Clean · %s</string>
+    <plurals name="smart_clean_caption">
+        <item quantity="one">Removes %d duplicate copy and keeps the best shot</item>
+        <item quantity="other">Removes %d duplicate copies and keeps the best of each set</item>
+    </plurals>
+    <string name="category_large_videos">Large videos</string>
+    <string name="category_blurry">Blurry</string>
+    <string name="category_none">None found</string>
+    <string name="count_and_size">%1$d · %2$s</string>
+    <string name="swipe_review_title">Swipe review</string>
+    <plurals name="swipe_review_subtitle">
+        <item quantity="one">%d photo · swipe left to clean, right to keep</item>
+        <item quantity="other">%d photos · swipe left to clean, right to keep</item>
+    </plurals>
+    <string name="swipe_review_empty">Nothing to review right now</string>
+    <string name="unlock_unlimited">Unlock unlimited cleaning</string>
+    <string name="scan_again">Scan again</string>
+    <string name="ring_finding">Finding photos</string>
+    <string name="ring_analyzing">Analyzing</string>
+    <string name="ring_percent">%d%%</string>
+    <string name="ring_progress">%1$d of %2$d</string>
+    <string name="ring_all_clean">All clean</string>
+    <string name="ring_nothing">Nothing to remove</string>
+    <plurals name="ring_can_be_cleared">
+        <item quantity="one">can be cleared · %d item</item>
+        <item quantity="other">can be cleared · %d items</item>
+    </plurals>
+
+    <!-- Lists -->
+    <plurals name="items_and_size">
+        <item quantity="one">%1$d item · %2$s</item>
+        <item quantity="other">%1$d items · %2$s</item>
+    </plurals>
+    <string name="select_all">SELECT ALL</string>
+    <string name="clear_selection">CLEAR</string>
+    <string name="scanning_gallery">Scanning your gallery…</string>
+    <string name="move_to_trash">Move to Trash</string>
+    <plurals name="clean_bar">
+        <item quantity="one">Move %1$d to Trash · %2$s</item>
+        <item quantity="other">Move %1$d to Trash · %2$s</item>
+    </plurals>
+    <string name="screens_empty_title">No screenshots</string>
+    <string name="screens_empty_message">Nothing to clear here. New screenshots will show up after the next scan.</string>
+    <string name="videos_empty_title">No large videos</string>
+    <string name="videos_empty_message">Videos over %s show up here, biggest first.</string>
+    <string name="blurry_empty_title">Everything\'s sharp</string>
+    <string name="blurry_empty_message">No out-of-focus photos found. Dark and low-contrast shots are skipped on purpose.</string>
+
+    <!-- Duplicates -->
+    <string name="dupes_comparing">Comparing photos…</string>
+    <plurals name="dupes_subtitle">
+        <item quantity="one">%1$d set · %2$s reclaimable</item>
+        <item quantity="other">%1$d sets · %2$s reclaimable</item>
+    </plurals>
+    <string name="select_extras">SELECT EXTRAS</string>
+    <string name="dupes_empty_title">No duplicates</string>
+    <string name="dupes_empty_message">Every photo in your gallery is one of a kind.</string>
+    <string name="dupes_smart_select">Smart select: keep the best of each set</string>
+    <plurals name="dupes_copies">
+        <item quantity="one">%d copy</item>
+        <item quantity="other">%d copies</item>
+    </plurals>
+    <string name="badge_best">BEST</string>
+    <string name="dupes_hint">Long-press a copy to compare or keep it instead</string>
+    <string name="dupes_keep_instead">Keep this one instead</string>
+
+    <!-- Trash -->
+    <string name="trash_empty_title">Trash is empty</string>
+    <string name="trash_empty_message">Items you clean go here first, so nothing is lost by accident.</string>
+    <string name="trash_explainer">Android keeps these for 30 days, then frees the space. Delete forever to free it now.</string>
+    <string name="trash_undo_last">Undo last clean</string>
+    <string name="trash_delete_forever">Delete forever</string>
+    <string name="trash_delete_n">Delete %d</string>
+    <string name="trash_item_fallback">Item %d</string>
+    <string name="trash_unsupported">Moving items to Trash needs Android 11 or newer</string>
+    <plurals name="snackbar_moved">
+        <item quantity="one">%d item moved to Trash</item>
+        <item quantity="other">%d items moved to Trash</item>
+    </plurals>
+    <string name="snackbar_undo">UNDO</string>
+    <string name="celebrate_cleared">Cleared</string>
+    <string name="celebrate_note">Moved to Trash. Android frees the space when Trash is emptied, or delete forever from the Trash tab.</string>
+
+    <!-- Swipe review -->
+    <string name="review_empty_title">Nothing to review</string>
+    <string name="review_empty_message">Screenshots and blurry photos will appear here after a scan.</string>
+    <string name="action_close">Close</string>
+    <string name="review_position">%1$d of %2$d</string>
+    <string name="review_done">DONE</string>
+    <string name="review_done_count">DONE · %d</string>
+    <string name="action_clean">Clean</string>
+    <string name="action_undo">Undo</string>
+    <string name="action_keep">Keep</string>
+    <string name="stamp_clean">CLEAN</string>
+    <string name="stamp_keep">KEEP</string>
+    <string name="tag_screenshot">SCREENSHOT</string>
+    <string name="tag_blurry">BLURRY</string>
+    <string name="review_all_kept">All kept</string>
+    <string name="review_nothing_marked">You didn\'t mark anything for cleaning.</string>
+    <string name="review_ready">Ready to clean</string>
+    <plurals name="review_will_move">
+        <item quantity="one">%d photo will move to Trash. You can restore it for 30 days.</item>
+        <item quantity="other">%d photos will move to Trash. You can restore them for 30 days.</item>
+    </plurals>
+    <plurals name="move_n_to_trash">
+        <item quantity="one">Move %d to Trash</item>
+        <item quantity="other">Move %d to Trash</item>
+    </plurals>
+    <string name="review_keep_reviewing">Keep reviewing</string>
+
+    <!-- Paywall -->
+    <string name="plan_lifetime">Lifetime</string>
+    <string name="plan_lifetime_period">one-time payment</string>
+    <string name="plan_best_value">BEST VALUE</string>
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_per_year">per year</string>
+    <string name="plan_weekly">Weekly</string>
+    <string name="plan_per_week">per week</string>
+    <string name="paywall_cleared">You\'ve cleared %s</string>
+    <string name="paywall_subtitle">Keep going without limits</string>
+    <string name="benefit_unlimited_title">Unlimited cleaning</string>
+    <string name="benefit_unlimited_sub">No cap on how many items you clear</string>
+    <string name="benefit_smart_title">Smart Clean in one tap</string>
+    <string name="benefit_smart_sub">Keep the best shot, clear the copies</string>
+    <string name="benefit_swipe_title">Swipe review</string>
+    <string name="benefit_swipe_sub">Fly through screenshots in seconds</string>
+    <string name="benefit_private_title">Private by design</string>
+    <string name="benefit_private_sub">Nothing ever leaves your phone</string>
+    <string name="paywall_loading">Loading prices…</string>
+    <string name="paywall_continue_price">Continue · %s</string>
+    <string name="paywall_continue">Continue</string>
+    <string name="paywall_renew_note">Subscriptions renew automatically until cancelled in Google Play.</string>
+    <string name="paywall_restore">Restore purchases</string>
+    <string name="paywall_no_purchase">No previous purchase found</string>
+    <string name="paywall_offline">Couldn\'t reach Google Play. Try again.</string>
+    <string name="paywall_privacy">Privacy policy</string>
+    <string name="paywall_free">Continue with free version</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_title">A lighter gallery in minutes</string>
+    <string name="onboarding_body">CleanShots finds screenshots, duplicates, blurry photos and large videos so you can clear them in a few taps.</string>
+    <string name="promise_device_title">Analysed on your phone</string>
+    <string name="promise_device_sub">Your photos and videos are never uploaded</string>
+    <string name="promise_trash_title">Trash first, always</string>
+    <string name="promise_trash_sub">Undo anything for 30 days</string>
+    <string name="promise_control_title">You stay in control</string>
+    <string name="promise_control_sub">Android asks before anything is removed</string>
+    <string name="onboarding_allow">Allow access to photos and videos</string>
+
+    <!-- Weekly scan notification -->
+    <string name="notif_channel">Weekly scan</string>
+    <string name="notif_title">Free up %s</string>
+    <plurals name="notif_text">
+        <item quantity="one">%d item can be cleaned up.</item>
+        <item quantity="other">%d items can be cleaned up.</item>
+    </plurals>
+</resources>

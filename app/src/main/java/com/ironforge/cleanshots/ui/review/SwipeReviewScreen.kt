@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.review
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
@@ -95,7 +98,7 @@ fun SwipeReviewScreen(candidates: List<ScannedImage>, cleaner: Cleaner, onClose:
     var finished by remember { mutableStateOf(false) }
 
     if (deck.isEmpty()) {
-        EmptyState(Icons.Rounded.TaskAlt, "Nothing to review", "Screenshots and blurry photos will appear here after a scan.")
+        EmptyState(Icons.Rounded.TaskAlt, stringResource(R.string.review_empty_title), stringResource(R.string.review_empty_message))
         return
     }
 
@@ -140,15 +143,15 @@ fun SwipeReviewScreen(candidates: List<ScannedImage>, cleaner: Cleaner, onClose:
 private fun ReviewTopBar(index: Int, total: Int, marked: Int, onClose: () -> Unit, onDone: () -> Unit) {
     val progress by animateFloatAsState((index.toFloat() / total).coerceIn(0f, 1f), label = "reviewProgress")
     Row(Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-        RoundIconButton(Icons.Rounded.Close, "Close", onClose, size = 44.dp)
+        RoundIconButton(Icons.Rounded.Close, stringResource(R.string.action_close), onClose, size = 44.dp)
         Column(Modifier.weight(1f).padding(horizontal = 14.dp)) {
-            Text("${(index + 1).coerceAtMost(total)} of $total", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.review_position, (index + 1).coerceAtMost(total), total), style = MaterialTheme.typography.labelLarge)
             Spacer(Modifier.height(6.dp))
             Box(Modifier.fillMaxWidth().height(6.dp).clip(RoundedCornerShape(3.dp)).background(SurfaceHigh)) {
                 Box(Modifier.fillMaxWidth(progress).height(6.dp).clip(RoundedCornerShape(3.dp)).background(BrandGradient))
             }
         }
-        Pill(if (marked > 0) "DONE · $marked" else "DONE", brush = if (marked > 0) BrandGradient else null,
+        Pill(if (marked > 0) stringResource(R.string.review_done_count, marked) else stringResource(R.string.review_done), brush = if (marked > 0) BrandGradient else null,
             textColor = if (marked > 0) OnAccent else Muted, onClick = onDone)
     }
 }
@@ -235,9 +238,9 @@ private fun SwipeDeck(
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            RoundIconButton(Icons.Rounded.Close, "Clean", { fling(true) }, size = 68.dp, brush = DangerGradient, tint = Color.White)
-            RoundIconButton(Icons.AutoMirrored.Rounded.Undo, "Undo", onUndo, size = 48.dp, enabled = canUndo && !flinging)
-            RoundIconButton(Icons.Rounded.Check, "Keep", { fling(false) }, size = 68.dp, brush = BrandGradient, tint = OnAccent)
+            RoundIconButton(Icons.Rounded.Close, stringResource(R.string.action_clean), { fling(true) }, size = 68.dp, brush = DangerGradient, tint = Color.White)
+            RoundIconButton(Icons.AutoMirrored.Rounded.Undo, stringResource(R.string.action_undo), onUndo, size = 48.dp, enabled = canUndo && !flinging)
+            RoundIconButton(Icons.Rounded.Check, stringResource(R.string.action_keep), { fling(false) }, size = 68.dp, brush = BrandGradient, tint = OnAccent)
         }
     }
 }
@@ -257,8 +260,8 @@ private fun ReviewCard(image: ScannedImage, modifier: Modifier, stamp: Float = 0
         Photo(image.contentUri, Modifier.fillMaxSize(), contentScale = ContentScale.Fit)
         Box(Modifier.matchParentSize().background(Danger.copy(alpha = 0.28f * (-stamp).coerceAtLeast(0f))))
         Box(Modifier.matchParentSize().background(Accent.copy(alpha = 0.22f * stamp.coerceAtLeast(0f))))
-        Stamp("CLEAN", Danger, alpha = (-stamp).coerceAtLeast(0f), rotation = 12f, modifier = Modifier.align(Alignment.TopEnd))
-        Stamp("KEEP", Accent, alpha = stamp.coerceAtLeast(0f), rotation = -12f, modifier = Modifier.align(Alignment.TopStart))
+        Stamp(stringResource(R.string.stamp_clean), Danger, alpha = (-stamp).coerceAtLeast(0f), rotation = 12f, modifier = Modifier.align(Alignment.TopEnd))
+        Stamp(stringResource(R.string.stamp_keep), Accent, alpha = stamp.coerceAtLeast(0f), rotation = -12f, modifier = Modifier.align(Alignment.TopStart))
         Column(
             Modifier
                 .align(Alignment.BottomCenter)
@@ -267,7 +270,7 @@ private fun ReviewCard(image: ScannedImage, modifier: Modifier, stamp: Float = 0
                 .padding(start = 20.dp, end = 20.dp, top = 40.dp, bottom = 18.dp)
         ) {
             val isShot = MediaStoreScanner.isScreenshot(image.relativePath, image.bucket, image.displayName)
-            Pill(if (isShot) "SCREENSHOT" else "BLURRY")
+            Pill(stringResource(if (isShot) R.string.tag_screenshot else R.string.tag_blurry))
             Spacer(Modifier.height(8.dp))
             Text(image.displayName, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis, color = Color.White)
             Text(
@@ -311,25 +314,25 @@ private fun ReviewSummary(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (marked.isEmpty()) {
-            Text("All kept", style = MaterialTheme.typography.displaySmall.copy(brush = BrandGradient))
-            Text("You didn't mark anything for cleaning.", color = Muted, style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.review_all_kept), style = MaterialTheme.typography.displaySmall.copy(brush = BrandGradient))
+            Text(stringResource(R.string.review_nothing_marked), color = Muted, style = MaterialTheme.typography.bodyMedium)
         } else {
-            Text("Ready to clean", color = Muted, style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.review_ready), color = Muted, style = MaterialTheme.typography.titleMedium)
             Text(formatBytes(marked.sumOf { it.size }), style = MaterialTheme.typography.displayMedium.copy(brush = BrandGradient))
             Text(
-                "${marked.size} photos will move to Trash. You can restore them for 30 days.",
+                pluralStringResource(R.plurals.review_will_move, marked.size, marked.size),
                 color = Muted,
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.height(28.dp))
-            GradientButton("Move ${marked.size} to Trash", onClick = onClean, leading = Icons.Rounded.DeleteSweep, modifier = Modifier.fillMaxWidth())
+            GradientButton(pluralStringResource(R.plurals.move_n_to_trash, marked.size, marked.size), onClick = onClean, leading = Icons.Rounded.DeleteSweep, modifier = Modifier.fillMaxWidth())
         }
         Spacer(Modifier.height(12.dp))
         if (onContinue != null) {
-            SoftButton("Keep reviewing", onClick = onContinue, modifier = Modifier.fillMaxWidth())
+            SoftButton(stringResource(R.string.review_keep_reviewing), onClick = onContinue, modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(10.dp))
         }
-        SoftButton("Close", onClick = onClose, modifier = Modifier.fillMaxWidth())
+        SoftButton(stringResource(R.string.action_close), onClick = onClose, modifier = Modifier.fillMaxWidth())
     }
 }

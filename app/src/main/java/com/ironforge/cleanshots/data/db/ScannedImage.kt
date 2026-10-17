@@ -2,13 +2,14 @@ package com.ironforge.cleanshots.data.db
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.ironforge.cleanshots.data.Cleanable
 
 @Entity(tableName = "media_scan")
 data class ScannedImage(
-    @PrimaryKey val mediaId: Long,
-    val contentUri: String,
-    val displayName: String,
-    val size: Long,
+    @PrimaryKey override val mediaId: Long,
+    override val contentUri: String,
+    override val displayName: String,
+    override val size: Long,
     val dateAdded: Long,
     val dateModified: Long,
     val width: Int,
@@ -18,4 +19,4 @@ data class ScannedImage(
     val dhash: Long? = null,
     val blurScore: Float? = null,
     val scannedAt: Long = System.currentTimeMillis()
-)
+) : Cleanable

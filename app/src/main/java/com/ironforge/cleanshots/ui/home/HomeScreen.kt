@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.home
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +27,7 @@ import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Screenshot
 import androidx.compose.material.icons.rounded.Swipe
+import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.WorkspacePremium
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +42,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.ironforge.cleanshots.data.db.ScannedImage
+import com.ironforge.cleanshots.data.Cleanable
 import com.ironforge.cleanshots.data.scan.ScanRepository
 import com.ironforge.cleanshots.ui.components.AnimatedBytes
 import com.ironforge.cleanshots.ui.components.GlassCard
@@ -70,9 +74,10 @@ fun HomeScreen(
     val extras = remember(ui.groups) { ui.groups.flatMap { it.dupes } }
     val extrasBytes = extras.sumOf { it.size }
     val blurryBytes = ui.blurry.sumOf { it.size }
+    val videoBytes = ui.videos.sumOf { it.size }
     val reviewCount = remember(ui.shots, ui.blurry) { (ui.shots + ui.blurry).distinctBy { it.mediaId }.size }
-    val total = ui.shotsBytes + extrasBytes + blurryBytes
-    val itemCount = ui.shots.size + extras.size + ui.blurry.size
+    val total = ui.shotsBytes + extrasBytes + blurryBytes + videoBytes
+    val itemCount = ui.shots.size + extras.size + ui.blurry.size + ui.videos.size
 
     Column(
         Modifier
@@ -83,14 +88,14 @@ fun HomeScreen(
     ) {
         Row(Modifier.fillMaxWidth().enterAnimation(0), verticalAlignment = Alignment.CenterVertically) {
             Column(Modifier.weight(1f)) {
-                Text("CleanShots", style = MaterialTheme.typography.labelLarge, color = Accent)
-                Text("Your gallery", style = MaterialTheme.typography.headlineMedium)
+                Text(stringResource(R.string.app_name), style = MaterialTheme.typography.labelLarge, color = Accent)
+                Text(stringResource(R.string.home_title), style = MaterialTheme.typography.headlineMedium)
             }
             val left = cleaner.freeLeft
             if (left == null) {
-                Pill("PRO", brush = BrandGradient, textColor = OnAccent)
+                Pill(stringResource(R.string.badge_pro), brush = BrandGradient, textColor = OnAccent)
             } else {
-                Pill("$left FREE LEFT", textColor = Accent, onClick = onUpgrade)
+                Pill(pluralStringResource(R.plurals.free_left, left, left), textColor = Accent, onClick = onUpgrade)
             }
         }
 
@@ -99,15 +104,14 @@ fun HomeScreen(
         if (extras.isNotEmpty()) {
             Column(Modifier.enterAnimation(2)) {
                 GradientButton(
-                    "Smart Clean · ${formatBytes(extrasBytes)}",
+                    stringResource(R.string.smart_clean_button, formatBytes(extrasBytes)),
                     onClick = { cleaner.clean(extras) },
                     leading = Icons.Rounded.AutoAwesome,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    if (extras.size == 1) "Removes 1 duplicate copy and keeps the best shot"
-                    else "Removes ${extras.size} duplicate copies and keeps the best of each set",
+                    pluralStringResource(R.plurals.smart_clean_caption, extras.size, extras.size),
                     color = Muted,
                     style = MaterialTheme.typography.bodySmall,
                     textAlign = TextAlign.Center,
@@ -116,18 +120,19 @@ fun HomeScreen(
             }
         }
 
-        CategoryCard(Icons.Rounded.Screenshot, "Screenshots", ui.shots.size, ui.shotsBytes, ui.shots, Modifier.enterAnimation(3)) { onOpen("shots") }
-        CategoryCard(Icons.Rounded.ContentCopy, "Duplicates", extras.size, extrasBytes, extras, Modifier.enterAnimation(4)) { onOpen("dupes") }
-        CategoryCard(Icons.Rounded.BlurOn, "Blurry", ui.blurry.size, blurryBytes, ui.blurry, Modifier.enterAnimation(5)) { onOpen("blurry") }
+        CategoryCard(Icons.Rounded.Screenshot, stringResource(R.string.tab_screenshots), ui.shots.size, ui.shotsBytes, ui.shots, Modifier.enterAnimation(3)) { onOpen("shots") }
+        CategoryCard(Icons.Rounded.ContentCopy, stringResource(R.string.tab_duplicates), extras.size, extrasBytes, extras, Modifier.enterAnimation(4)) { onOpen("dupes") }
+        CategoryCard(Icons.Rounded.VideoLibrary, stringResource(R.string.category_large_videos), ui.videos.size, videoBytes, ui.videos, Modifier.enterAnimation(5)) { onOpen("videos") }
+        CategoryCard(Icons.Rounded.BlurOn, stringResource(R.string.category_blurry), ui.blurry.size, blurryBytes, ui.blurry, Modifier.enterAnimation(5)) { onOpen("blurry") }
 
         GlassCard(Modifier.fillMaxWidth().enterAnimation(6), onClick = if (reviewCount > 0) onReview else null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 GradientIconBadge(Icons.Rounded.Swipe)
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {
-                    Text("Swipe review", style = MaterialTheme.typography.titleMedium)
+                    Text(stringResource(R.string.swipe_review_title), style = MaterialTheme.typography.titleMedium)
                     Text(
-                        if (reviewCount > 0) "$reviewCount photos · swipe left to clean, right to keep" else "Nothing to review right now",
+                        if (reviewCount > 0) pluralStringResource(R.plurals.swipe_review_subtitle, reviewCount, reviewCount) else stringResource(R.string.swipe_review_empty),
                         color = Muted,
                         style = MaterialTheme.typography.bodySmall
                     )
@@ -138,7 +143,7 @@ fun HomeScreen(
 
         if (cleaner.freeLeft != null) {
             SoftButton(
-                "Unlock unlimited cleaning",
+                stringResource(R.string.unlock_unlimited),
                 onClick = onUpgrade,
                 leading = Icons.Rounded.WorkspacePremium,
                 tint = Accent,
@@ -148,7 +153,7 @@ fun HomeScreen(
 
         if (!ui.scanning) {
             SoftButton(
-                "Scan again",
+                stringResource(R.string.scan_again),
                 onClick = { scanVm.start() },
                 leading = Icons.Rounded.Refresh,
                 modifier = Modifier.fillMaxWidth().enterAnimation(8)
@@ -178,21 +183,21 @@ private fun HeroRing(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (scanning) {
                     Text(
-                        if (phase == ScanRepository.PHASE_LISTING || total == 0) "Finding photos" else "Analyzing",
+                        stringResource(if (phase == ScanRepository.PHASE_LISTING || total == 0) R.string.ring_finding else R.string.ring_analyzing),
                         color = Muted,
                         style = MaterialTheme.typography.titleSmall
                     )
                     Text(
-                        if (total > 0) "${(done * 100L / total)}%" else "…",
+                        if (total > 0) stringResource(R.string.ring_percent, (done * 100L / total).toInt()) else "…",
                         style = MaterialTheme.typography.displaySmall.copy(brush = BrandGradient)
                     )
-                    if (total > 0) Text("$done of $total", color = Muted, style = MaterialTheme.typography.bodySmall)
+                    if (total > 0) Text(stringResource(R.string.ring_progress, done, total), color = Muted, style = MaterialTheme.typography.bodySmall)
                 } else if (items == 0) {
-                    Text("All clean", style = MaterialTheme.typography.displaySmall.copy(brush = BrandGradient))
-                    Text("Nothing to remove", color = Muted, style = MaterialTheme.typography.bodySmall)
+                    Text(stringResource(R.string.ring_all_clean), style = MaterialTheme.typography.displaySmall.copy(brush = BrandGradient))
+                    Text(stringResource(R.string.ring_nothing), color = Muted, style = MaterialTheme.typography.bodySmall)
                 } else {
                     AnimatedBytes(bytes, MaterialTheme.typography.displaySmall.copy(brush = BrandGradient))
-                    Text("can be cleared · $items items", color = Muted, style = MaterialTheme.typography.bodySmall)
+                    Text(pluralStringResource(R.plurals.ring_can_be_cleared, items, items), color = Muted, style = MaterialTheme.typography.bodySmall)
                 }
             }
         }
@@ -205,7 +210,7 @@ private fun CategoryCard(
     title: String,
     count: Int,
     bytes: Long,
-    previews: List<ScannedImage>,
+    previews: List<Cleanable>,
     modifier: Modifier,
     onClick: () -> Unit
 ) {
@@ -215,7 +220,7 @@ private fun CategoryCard(
             Spacer(Modifier.width(14.dp))
             Column(Modifier.weight(1f)) {
                 Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(if (count == 0) "None found" else "$count · ${formatBytes(bytes)}", color = Muted, style = MaterialTheme.typography.bodySmall)
+                Text(if (count == 0) stringResource(R.string.category_none) else stringResource(R.string.count_and_size, count, formatBytes(bytes)), color = Muted, style = MaterialTheme.typography.bodySmall)
             }
             ThumbStack(previews.take(3))
             Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, contentDescription = null, tint = Muted)
@@ -224,7 +229,7 @@ private fun CategoryCard(
 }
 
 @Composable
-private fun ThumbStack(images: List<ScannedImage>) {
+private fun ThumbStack(images: List<Cleanable>) {
     if (images.isEmpty()) return
     Box(Modifier.width((40 + (images.size - 1) * 18).dp).height(40.dp)) {
         images.forEachIndexed { i, img ->

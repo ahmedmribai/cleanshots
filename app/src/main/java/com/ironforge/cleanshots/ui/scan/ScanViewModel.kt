@@ -7,6 +7,7 @@ import com.ironforge.cleanshots.data.db.ScannedImage
 import com.ironforge.cleanshots.data.scan.DuplicateGroup
 import com.ironforge.cleanshots.data.scan.ScanProgress
 import com.ironforge.cleanshots.data.scan.ScanRepository
+import com.ironforge.cleanshots.data.scan.VideoItem
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,8 @@ data class ScanUi(
     val shots: List<ScannedImage> = emptyList(),
     val shotsBytes: Long = 0L,
     val groups: List<DuplicateGroup> = emptyList(),
-    val blurry: List<ScannedImage> = emptyList()
+    val blurry: List<ScannedImage> = emptyList(),
+    val videos: List<VideoItem> = emptyList()
 )
 
 class ScanViewModel(private val repo: ScanRepository) : ViewModel() {
@@ -42,7 +44,8 @@ class ScanViewModel(private val repo: ScanRepository) : ViewModel() {
         val (shots, bytes) = repo.screenshots()
         val groups = repo.duplicateGroups()
         val blurry = repo.blurry()
-        _ui.value = _ui.value.copy(shots = shots, shotsBytes = bytes, groups = groups, blurry = blurry, scanning = false)
+        val videos = repo.largeVideos()
+        _ui.value = _ui.value.copy(shots = shots, shotsBytes = bytes, groups = groups, blurry = blurry, videos = videos, scanning = false)
     }
 
     /** Hides trashed items right away; the next scan prunes their DB rows. */
@@ -57,7 +60,8 @@ class ScanViewModel(private val repo: ScanRepository) : ViewModel() {
             shots = shots,
             shotsBytes = shots.sumOf { it.size },
             groups = groups,
-            blurry = cur.blurry.filter { it.mediaId !in ids }
+            blurry = cur.blurry.filter { it.mediaId !in ids },
+            videos = cur.videos.filter { it.mediaId !in ids }
         )
     }
 

@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.trash
 
+import androidx.compose.ui.platform.LocalResources
+import android.content.res.Resources
+import com.ironforge.cleanshots.R
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -9,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.core.net.toUri
-import com.ironforge.cleanshots.data.db.ScannedImage
+import com.ironforge.cleanshots.data.Cleanable
 import com.ironforge.cleanshots.data.store.PrefsManager
 import com.ironforge.cleanshots.ui.scan.ScanViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +28,7 @@ class Cleaner internal constructor(
     private val scanVm: ScanViewModel,
     private val snack: SnackbarHostState,
     private val scope: CoroutineScope,
+    private val resources: Resources,
     private val isPremium: State<Boolean>,
     private val freeUsed: State<Int>,
     private val onNeedPremium: State<() -> Unit>,
@@ -32,14 +36,14 @@ class Cleaner internal constructor(
 ) {
     val freeLeft: Int? get() = if (isPremium.value) null else (PrefsManager.FREE_LIMIT - freeUsed.value).coerceAtLeast(0)
 
-    fun clean(images: List<ScannedImage>, onApproved: () -> Unit = {}) {
+    fun clean(images: List<Cleanable>, onApproved: () -> Unit = {}) {
         if (images.isEmpty()) return
         if (PrefsManager.exceedsFreeLimit(isPremium.value, freeUsed.value, images.size)) {
             onNeedPremium.value()
             return
         }
         if (!requester.isSupported) {
-            scope.launch { snack.showSnackbar(TRASH_UNSUPPORTED_MESSAGE) }
+            scope.launch { snack.showSnackbar(resources.getString(R.string.trash_unsupported)) }
             return
         }
         val uris = images.map { it.contentUri.toUri() }
@@ -51,8 +55,9 @@ class Cleaner internal constructor(
             onApproved()
             onCleaned.value(images.sumOf { it.size })
             scope.launch {
-                val label = if (images.size == 1) "1 photo moved to Trash" else "${images.size} photos moved to Trash"
-                val result = snack.showSnackbar(label, actionLabel = "UNDO", duration = SnackbarDuration.Long)
+                val label = resources.getQuantityString(R.plurals.snackbar_moved, images.size, images.size)
+                val undo = resources.getString(R.string.snackbar_undo)
+                val result = snack.showSnackbar(label, actionLabel = undo, duration = SnackbarDuration.Long)
                 if (result == SnackbarResult.ActionPerformed) {
                     requester.untrash(uris) { restored ->
                         if (restored) { trashVm.onUntrashed(uris); scanVm.start() }
@@ -75,11 +80,12 @@ fun rememberCleaner(
     onCleaned: (Long) -> Unit
 ): Cleaner {
     val scope = rememberCoroutineScope()
+    val resources = LocalResources.current
     val premiumState = rememberUpdatedState(isPremium)
     val usedState = rememberUpdatedState(freeUsed)
     val needPremiumState = rememberUpdatedState(onNeedPremium)
     val cleanedState = rememberUpdatedState(onCleaned)
-    return remember(requester, trashVm, scanVm, snack) {
-        Cleaner(requester, trashVm, scanVm, snack, scope, premiumState, usedState, needPremiumState, cleanedState)
+    return remember(requester, trashVm, scanVm, snack, resources) {
+        Cleaner(requester, trashVm, scanVm, snack, scope, resources, premiumState, usedState, needPremiumState, cleanedState)
     }
 }

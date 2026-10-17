@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.screens
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -61,13 +64,13 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
     Box(Modifier.fillMaxSize()) {
         Column(Modifier.fillMaxSize()) {
             ScreenHeader(
-                title = "Duplicates",
-                subtitle = if (ui.groups.isEmpty() && ui.scanning) "Comparing photos…"
-                else "${ui.groups.size} ${if (ui.groups.size == 1) "set" else "sets"} · ${formatBytes(extras.sumOf { it.size })} reclaimable"
+                title = stringResource(R.string.tab_duplicates),
+                subtitle = if (ui.groups.isEmpty() && ui.scanning) stringResource(R.string.dupes_comparing)
+                else pluralStringResource(R.plurals.dupes_subtitle, ui.groups.size, ui.groups.size, formatBytes(extras.sumOf { it.size }))
             ) {
                 if (extras.isNotEmpty()) {
                     Pill(
-                        if (live.size == extras.size) "CLEAR" else "SELECT EXTRAS",
+                        stringResource(if (live.size == extras.size) R.string.clear_selection else R.string.select_extras),
                         textColor = Accent,
                         onClick = { selected = if (live.size == extras.size) emptySet() else extraIds }
                     )
@@ -77,8 +80,8 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
                 ui.groups.isEmpty() && ui.scanning -> ShimmerGrid(Modifier.fillMaxSize())
                 ui.groups.isEmpty() -> EmptyState(
                     Icons.Rounded.ContentCopy,
-                    "No duplicates",
-                    "Every photo in your gallery is one of a kind."
+                    stringResource(R.string.dupes_empty_title),
+                    stringResource(R.string.dupes_empty_message)
                 )
                 else -> LazyColumn(
                     Modifier.fillMaxSize(),
@@ -87,7 +90,7 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
                 ) {
                     item {
                         SoftButton(
-                            "Smart select: keep the best of each set",
+                            stringResource(R.string.dupes_smart_select),
                             onClick = { selected = extraIds },
                             leading = Icons.Rounded.AutoAwesome,
                             tint = Accent,
@@ -97,7 +100,7 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
                     itemsIndexed(ui.groups, key = { _, g -> g.keeper.mediaId }) { index, group ->
                         GlassCard(Modifier.fillMaxWidth().animateItem().enterAnimation(index.coerceAtMost(6))) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text("${group.dupes.size + 1} copies", style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                                Text(pluralStringResource(R.plurals.dupes_copies, group.dupes.size + 1, group.dupes.size + 1), style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
                                 Text(formatBytes(group.dupes.sumOf { it.size }), color = Muted, style = MaterialTheme.typography.bodyMedium)
                             }
                             Spacer(Modifier.height(12.dp))
@@ -107,7 +110,7 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
                                         uri = group.keeper.contentUri,
                                         selected = false,
                                         selectable = false,
-                                        badge = "BEST",
+                                        badge = stringResource(R.string.badge_best),
                                         onClick = { preview = Preview(group.keeper, index, isKeeper = true) },
                                         onLongClick = { preview = Preview(group.keeper, index, isKeeper = true) },
                                         modifier = Modifier.width(118.dp)
@@ -125,7 +128,7 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
                                 }
                             }
                             Spacer(Modifier.height(8.dp))
-                            Text("Long-press a copy to compare or keep it instead", color = Muted, style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.dupes_hint), color = Muted, style = MaterialTheme.typography.bodySmall)
                         }
                     }
                 }
@@ -141,9 +144,11 @@ fun DuplicatesScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
 
     preview?.let { p ->
         PhotoPreviewDialog(
-            p.image,
+            uri = p.image.contentUri,
+            title = p.image.displayName,
+            details = "${formatBytes(p.image.size)} · ${p.image.width} × ${p.image.height}",
             onDismiss = { preview = null },
-            actionLabel = if (p.isKeeper) null else "Keep this one instead",
+            actionLabel = if (p.isKeeper) null else stringResource(R.string.dupes_keep_instead),
             onAction = {
                 scanVm.swapKeeper(p.groupIndex, p.image.mediaId)
                 selected = selected - p.image.mediaId

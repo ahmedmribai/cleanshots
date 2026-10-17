@@ -13,3 +13,4 @@ captures/
 .env
 keystore/
 keystore.properties
+__pycache__/

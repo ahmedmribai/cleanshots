@@ -29,8 +29,8 @@ object ScanNotifier {
         )
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Free up ${formatBytes(bytes)}")
-            .setContentText("$items photos can be cleaned up: screenshots and duplicates.")
+            .setContentTitle(context.getString(R.string.notif_title, formatBytes(bytes)))
+            .setContentText(context.resources.getQuantityString(R.plurals.notif_text, items, items))
             .setContentIntent(open)
             .setAutoCancel(true)
             .build()
@@ -46,7 +46,7 @@ object ScanNotifier {
             ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
 
     private fun ensureChannel(context: Context) {
-        val channel = NotificationChannel(CHANNEL_ID, "Weekly scan", NotificationManager.IMPORTANCE_LOW)
+        val channel = NotificationChannel(CHANNEL_ID, context.getString(R.string.notif_channel), NotificationManager.IMPORTANCE_LOW)
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
     }
 }

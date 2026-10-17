@@ -55,6 +55,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    androidResources { generateLocaleConfig = true }
     buildFeatures { compose = true }
     packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
 }
@@ -88,6 +89,7 @@ dependencies {
 
     implementation(libs.datastore.preferences)
     implementation(libs.coil.compose)
+    implementation(libs.coil.video)
 
     implementation(libs.billing)
     implementation(libs.billing.ktx)

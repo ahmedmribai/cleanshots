@@ -135,6 +135,9 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
         }.sortedByDescending { it.dupes.sumOf { d -> d.size } }
     }
 
+    suspend fun largeVideos(): List<VideoItem> =
+        withContext(Dispatchers.IO) { VideoScanner.largeVideos(context.contentResolver) }
+
     /** Screenshots are flat by design, so they would all look "blurry"; they are excluded. */
     suspend fun blurry(threshold: Double = BlurUtils.DEFAULT_THRESHOLD): List<ScannedImage> =
         withContext(Dispatchers.Default) {

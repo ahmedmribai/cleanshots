@@ -1,5 +1,7 @@
 package com.ironforge.cleanshots.ui.components
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -176,10 +178,10 @@ fun CelebrationOverlay(bytes: Long?, onDone: () -> Unit) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Text("Cleared", style = MaterialTheme.typography.titleMedium, color = Muted)
+                Text(stringResource(R.string.celebrate_cleared), style = MaterialTheme.typography.titleMedium, color = Muted)
                 AnimatedBytes(lastBytes, MaterialTheme.typography.displayMedium.copy(brush = BrandGradient))
                 Text(
-                    "Moved to Trash. Android frees the space when Trash is emptied, or delete forever from the Trash tab.",
+                    stringResource(R.string.celebrate_note),
                     style = MaterialTheme.typography.bodyMedium,
                     color = Muted,
                     textAlign = TextAlign.Center

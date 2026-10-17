@@ -1,5 +1,7 @@
 package com.ironforge.cleanshots.ui.components
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.RepeatMode
@@ -132,7 +134,7 @@ fun CleanActionBar(count: Int, bytes: Long, onClean: () -> Unit, modifier: Modif
                 .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             GradientButton(
-                text = "Move $count to Trash · ${formatBytes(bytes)}",
+                text = pluralStringResource(R.plurals.clean_bar, count, count, formatBytes(bytes)),
                 onClick = onClean,
                 leading = Icons.Rounded.DeleteSweep,
                 modifier = Modifier.fillMaxWidth()

@@ -1,5 +1,7 @@
 package com.ironforge.cleanshots
 
+import androidx.annotation.StringRes
+import androidx.compose.ui.res.stringResource
 import android.Manifest
 import android.os.Build
 import android.os.Bundle
@@ -21,7 +23,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BlurOn
+import androidx.compose.material.icons.rounded.VideoLibrary
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Home
@@ -64,6 +66,7 @@ import com.ironforge.cleanshots.ui.screens.BlurryScreen
 import com.ironforge.cleanshots.ui.screens.DuplicatesScreen
 import com.ironforge.cleanshots.ui.screens.ScreenshotsScreen
 import com.ironforge.cleanshots.ui.screens.TrashScreenInner
+import com.ironforge.cleanshots.ui.screens.VideosScreen
 import com.ironforge.cleanshots.ui.theme.Accent
 import com.ironforge.cleanshots.ui.theme.Background
 import com.ironforge.cleanshots.ui.theme.CleanShotsTheme
@@ -95,14 +98,14 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private data class Tab(val route: String, val label: String, val icon: ImageVector)
+private data class Tab(val route: String, @StringRes val label: Int, val icon: ImageVector)
 
 private val TABS = listOf(
-    Tab("home", "Home", Icons.Rounded.Home),
-    Tab("shots", "Screenshots", Icons.Rounded.Screenshot),
-    Tab("dupes", "Duplicates", Icons.Rounded.ContentCopy),
-    Tab("blurry", "Blurry", Icons.Rounded.BlurOn),
-    Tab("trash", "Trash", Icons.Rounded.Delete)
+    Tab("home", R.string.tab_home, Icons.Rounded.Home),
+    Tab("shots", R.string.tab_screenshots, Icons.Rounded.Screenshot),
+    Tab("dupes", R.string.tab_duplicates, Icons.Rounded.ContentCopy),
+    Tab("videos", R.string.tab_videos, Icons.Rounded.VideoLibrary),
+    Tab("trash", R.string.tab_trash, Icons.Rounded.Delete)
 )
 
 private const val REVIEW_ROUTE = "review"
@@ -169,6 +172,7 @@ private fun AppShell(access: String) {
                 composable("shots") { ScreenshotsScreen(scanVm, cleaner) }
                 composable("dupes") { DuplicatesScreen(scanVm, cleaner) }
                 composable("blurry") { BlurryScreen(scanVm, cleaner) }
+                composable("videos") { VideosScreen(scanVm, cleaner) }
                 composable("trash") {
                     TrashScreenInner(
                         items = trashUi.items,
@@ -215,11 +219,12 @@ private fun AppShell(access: String) {
 private fun BottomBar(route: String?, onSelect: (String) -> Unit) {
     NavigationBar(containerColor = SurfaceCard, tonalElevation = 0.dp) {
         TABS.forEach { t ->
+            val label = stringResource(t.label)
             NavigationBarItem(
                 selected = route == t.route,
                 onClick = { onSelect(t.route) },
-                icon = { Icon(t.icon, contentDescription = t.label) },
-                label = { Text(t.label, maxLines = 1, overflow = TextOverflow.Clip, style = MaterialTheme.typography.labelSmall) },
+                icon = { Icon(t.icon, contentDescription = label) },
+                label = { Text(label, maxLines = 1, overflow = TextOverflow.Clip, style = MaterialTheme.typography.labelSmall) },
                 colors = NavigationBarItemDefaults.colors(
                     selectedIconColor = Accent,
                     selectedTextColor = Accent,

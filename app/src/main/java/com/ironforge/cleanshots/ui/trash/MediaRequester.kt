@@ -14,8 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 
-const val TRASH_UNSUPPORTED_MESSAGE = "Moving photos to Trash needs Android 11 or newer"
-
 /**
  * Launches MediaStore consent dialogs and reports whether the user approved.
  * Callers must only change app state inside [onResult] when it receives true.

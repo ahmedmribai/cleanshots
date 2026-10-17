@@ -49,8 +49,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.net.toUri
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.ironforge.cleanshots.data.db.ScannedImage
-import com.ironforge.cleanshots.ui.scan.formatBytes
 import com.ironforge.cleanshots.ui.theme.BrandGradient
 import com.ironforge.cleanshots.ui.theme.Muted
 import com.ironforge.cleanshots.ui.theme.OnAccent
@@ -73,6 +71,7 @@ fun SelectableThumb(
     modifier: Modifier = Modifier,
     onLongClick: (() -> Unit)? = null,
     badge: String? = null,
+    badgeHighlighted: Boolean = true,
     selectable: Boolean = true
 ) {
     val haptics = LocalHapticFeedback.current
@@ -128,7 +127,8 @@ fun SelectableThumb(
             }
         }
         badge?.let {
-            Pill(it, Modifier.align(Alignment.BottomStart).padding(8.dp), brush = BrandGradient, textColor = OnAccent)
+            if (badgeHighlighted) Pill(it, Modifier.align(Alignment.BottomStart).padding(8.dp), brush = BrandGradient, textColor = OnAccent)
+            else Pill(it, Modifier.align(Alignment.BottomStart).padding(8.dp))
         }
     }
 }
@@ -136,7 +136,9 @@ fun SelectableThumb(
 /** Full-screen preview opened by long-press, with an optional primary action. */
 @Composable
 fun PhotoPreviewDialog(
-    image: ScannedImage,
+    uri: String,
+    title: String,
+    details: String,
     onDismiss: () -> Unit,
     actionLabel: String? = null,
     onAction: () -> Unit = {}
@@ -153,17 +155,13 @@ fun PhotoPreviewDialog(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Photo(
-                image.contentUri,
+                uri,
                 Modifier.fillMaxWidth().weight(1f, fill = false).clip(RoundedCornerShape(24.dp)),
                 contentScale = ContentScale.Fit
             )
             Spacer(Modifier.height(16.dp))
-            Text(image.displayName, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            Text(
-                "${formatBytes(image.size)}  ·  ${image.width} × ${image.height}",
-                color = Muted,
-                style = MaterialTheme.typography.bodyMedium
-            )
+            Text(title, style = MaterialTheme.typography.titleMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(details, color = Muted, style = MaterialTheme.typography.bodyMedium)
             if (actionLabel != null) {
                 Spacer(Modifier.height(20.dp))
                 GradientButton(actionLabel, onClick = { onAction(); onDismiss() }, modifier = Modifier.fillMaxWidth())

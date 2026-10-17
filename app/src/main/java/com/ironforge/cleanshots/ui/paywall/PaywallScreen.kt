@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.paywall
 
+import androidx.annotation.StringRes
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.stringResource
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -84,12 +87,12 @@ private tailrec fun Context.findActivity(): Activity? = when (this) {
     else -> null
 }
 
-private data class Plan(val id: String, val title: String, val period: String, val badge: String?)
+private data class Plan(val id: String, @StringRes val title: Int, @StringRes val period: Int, @StringRes val badge: Int?)
 
 private val PLANS = listOf(
-    Plan(Products.LIFETIME, "Lifetime", "one-time payment", "BEST VALUE"),
-    Plan(Products.YEARLY, "Yearly", "per year", null),
-    Plan(Products.WEEKLY, "Weekly", "per week", null)
+    Plan(Products.LIFETIME, R.string.plan_lifetime, R.string.plan_lifetime_period, R.string.plan_best_value),
+    Plan(Products.YEARLY, R.string.plan_yearly, R.string.plan_per_year, null),
+    Plan(Products.WEEKLY, R.string.plan_weekly, R.string.plan_per_week, null)
 )
 
 @Composable
@@ -106,6 +109,8 @@ fun PaywallScreen(
     var restoreMessage by remember { mutableStateOf<String?>(null) }
     var chosen by remember { mutableStateOf(Products.LIFETIME) }
     BackHandler(onBack = onClose)
+    val noPurchase = stringResource(R.string.paywall_no_purchase)
+    val offline = stringResource(R.string.paywall_offline)
 
     fun price(id: String): String? {
         val p = products[id] ?: return null
@@ -136,33 +141,33 @@ fun PaywallScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(Modifier.fillMaxWidth().padding(top = 8.dp), horizontalArrangement = Arrangement.End) {
-                RoundIconButton(Icons.Rounded.Close, "Close", onClose, size = 40.dp)
+                RoundIconButton(Icons.Rounded.Close, stringResource(R.string.action_close), onClose, size = 40.dp)
             }
             GlowingCrown(Modifier.enterAnimation(0))
             Spacer(Modifier.height(12.dp))
             Text(
-                if (freedBytes > 0) "You've cleared ${formatBytes(freedBytes)}" else "CleanShots Pro",
+                if (freedBytes > 0) stringResource(R.string.paywall_cleared, formatBytes(freedBytes)) else stringResource(R.string.pro_name),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.enterAnimation(1)
             )
             Text(
-                "Keep going without limits",
+                stringResource(R.string.paywall_subtitle),
                 style = MaterialTheme.typography.bodyLarge,
                 color = Muted,
                 modifier = Modifier.enterAnimation(1)
             )
             Spacer(Modifier.height(24.dp))
             Column(Modifier.enterAnimation(2), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-                Benefit(Icons.Rounded.AllInclusive, "Unlimited cleaning", "No cap on how many photos you clear")
-                Benefit(Icons.Rounded.AutoAwesome, "Smart Clean in one tap", "Keep the best shot, clear the copies")
-                Benefit(Icons.Rounded.Swipe, "Swipe review", "Fly through screenshots in seconds")
-                Benefit(Icons.Rounded.Shield, "Private by design", "Nothing ever leaves your phone")
+                Benefit(Icons.Rounded.AllInclusive, stringResource(R.string.benefit_unlimited_title), stringResource(R.string.benefit_unlimited_sub))
+                Benefit(Icons.Rounded.AutoAwesome, stringResource(R.string.benefit_smart_title), stringResource(R.string.benefit_smart_sub))
+                Benefit(Icons.Rounded.Swipe, stringResource(R.string.benefit_swipe_title), stringResource(R.string.benefit_swipe_sub))
+                Benefit(Icons.Rounded.Shield, stringResource(R.string.benefit_private_title), stringResource(R.string.benefit_private_sub))
             }
             Spacer(Modifier.height(24.dp))
             Column(Modifier.enterAnimation(3), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (available.isEmpty()) {
-                    Text("Loading prices…", color = Muted, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                    Text(stringResource(R.string.paywall_loading), color = Muted, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
                 }
                 available.forEach { plan ->
                     PlanCard(plan, price(plan.id).orEmpty(), selected = active == plan.id) { chosen = plan.id }
@@ -170,35 +175,35 @@ fun PaywallScreen(
             }
             Spacer(Modifier.height(20.dp))
             GradientButton(
-                if (selectedPrice != null) "Continue · $selectedPrice" else "Continue",
+                if (selectedPrice != null) stringResource(R.string.paywall_continue_price, selectedPrice) else stringResource(R.string.paywall_continue),
                 onClick = { buy(active) },
                 enabled = selectedPrice != null,
                 modifier = Modifier.fillMaxWidth().enterAnimation(4)
             )
             Spacer(Modifier.height(10.dp))
             Text(
-                "Subscriptions renew automatically until cancelled in Google Play.",
+                stringResource(R.string.paywall_renew_note),
                 color = Muted,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
             )
             Row(Modifier.padding(vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
                 Text(
-                    "Restore purchases",
+                    stringResource(R.string.paywall_restore),
                     color = Accent,
                     style = MaterialTheme.typography.labelLarge,
                     modifier = Modifier.clickable {
                         scope.launch {
                             when (billing.refreshPremium()) {
                                 true -> onRestored()
-                                false -> restoreMessage = "No previous purchase found"
-                                null -> restoreMessage = "Couldn't reach Google Play. Try again."
+                                false -> restoreMessage = noPurchase
+                                null -> restoreMessage = offline
                             }
                         }
                     }
                 )
                 Text(
-                    "Privacy policy",
+                    stringResource(R.string.paywall_privacy),
                     color = Muted,
                     style = MaterialTheme.typography.labelLarge.copy(textDecoration = TextDecoration.Underline),
                     modifier = Modifier.clickable { uriHandler.openUri(PRIVACY_POLICY_URL) }
@@ -206,7 +211,7 @@ fun PaywallScreen(
             }
             restoreMessage?.let { Text(it, color = Muted, style = MaterialTheme.typography.bodySmall) }
             Text(
-                "Continue with free version",
+                stringResource(R.string.paywall_free),
                 color = Muted,
                 style = MaterialTheme.typography.labelLarge,
                 modifier = Modifier.clickable(onClick = onClose).padding(12.dp)
@@ -260,13 +265,13 @@ private fun PlanCard(plan: Plan, price: String, selected: Boolean, onSelect: () 
     ) {
         Column(Modifier.weight(1f)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(plan.title, style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(plan.title), style = MaterialTheme.typography.titleMedium)
                 plan.badge?.let {
                     Spacer(Modifier.width(8.dp))
-                    Pill(it, brush = BrandGradient, textColor = OnAccent)
+                    Pill(stringResource(it), brush = BrandGradient, textColor = OnAccent)
                 }
             }
-            Text(plan.period, color = Muted, style = MaterialTheme.typography.bodySmall)
+            Text(stringResource(plan.period), color = Muted, style = MaterialTheme.typography.bodySmall)
         }
         Text(price, style = MaterialTheme.typography.titleLarge)
     }

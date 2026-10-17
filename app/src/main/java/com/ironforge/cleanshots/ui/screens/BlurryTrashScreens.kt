@@ -1,5 +1,8 @@
 package com.ironforge.cleanshots.ui.screens
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -63,14 +66,15 @@ import com.ironforge.cleanshots.ui.trash.Cleaner
 @Composable
 fun BlurryScreen(scanVm: ScanViewModel, cleaner: Cleaner) {
     val ui by scanVm.ui.collectAsState()
-    PhotoGridScreen(
-        title = "Blurry",
-        images = ui.blurry,
+    MediaGridScreen(
+        title = stringResource(R.string.category_blurry),
+        items = ui.blurry,
         scanning = ui.scanning,
         cleaner = cleaner,
         emptyIcon = Icons.Rounded.BlurOn,
-        emptyTitle = "Everything's sharp",
-        emptyMessage = "No out-of-focus photos found. Dark and low-contrast shots are skipped on purpose."
+        emptyTitle = stringResource(R.string.blurry_empty_title),
+        emptyMessage = stringResource(R.string.blurry_empty_message),
+        details = ::imageDetails
     )
 }
 
@@ -88,27 +92,27 @@ fun TrashScreenInner(
 
     Column(Modifier.fillMaxSize()) {
         ScreenHeader(
-            title = "Trash",
-            subtitle = "${items.size} items · ${formatBytes(items.sumOf { it.size })}"
+            title = stringResource(R.string.tab_trash),
+            subtitle = pluralStringResource(R.plurals.items_and_size, items.size, items.size, formatBytes(items.sumOf { it.size }))
         ) {
             if (items.isNotEmpty()) {
-                Pill(if (allSelected) "CLEAR" else "SELECT ALL", textColor = Accent, onClick = { sel = if (allSelected) emptySet() else ids })
+                Pill(stringResource(if (allSelected) R.string.clear_selection else R.string.select_all), textColor = Accent, onClick = { sel = if (allSelected) emptySet() else ids })
             }
         }
         if (items.isEmpty()) {
-            EmptyState(Icons.Rounded.DeleteOutline, "Trash is empty", "Photos you clean go here first, so nothing is lost by accident.")
+            EmptyState(Icons.Rounded.DeleteOutline, stringResource(R.string.trash_empty_title), stringResource(R.string.trash_empty_message))
             return@Column
         }
         Text(
-            "Android keeps these for 30 days, then frees the space. Delete forever to free it now.",
+            stringResource(R.string.trash_explainer),
             color = Muted,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            SoftButton("Undo last clean", onClick = onRestore, leading = Icons.Rounded.Restore, enabled = canRestore, modifier = Modifier.weight(1f))
+            SoftButton(stringResource(R.string.trash_undo_last), onClick = onRestore, leading = Icons.Rounded.Restore, enabled = canRestore, modifier = Modifier.weight(1f))
             GradientButton(
-                if (live.isEmpty()) "Delete forever" else "Delete ${live.size}",
+                if (live.isEmpty()) stringResource(R.string.trash_delete_forever) else stringResource(R.string.trash_delete_n, live.size),
                 onClick = { onDelete(live.toList()); sel = emptySet() },
                 enabled = live.isNotEmpty(),
                 leading = Icons.Rounded.DeleteForever,
@@ -150,7 +154,7 @@ private fun TrashRow(entry: TrashEntry, selected: Boolean, modifier: Modifier, o
         }
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f)) {
-            Text(entry.displayName.ifEmpty { "Photo ${entry.mediaId}" }, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(entry.displayName.ifEmpty { stringResource(R.string.trash_item_fallback, entry.mediaId) }, maxLines = 1, overflow = TextOverflow.Ellipsis)
             Text(formatBytes(entry.size), color = Muted, style = MaterialTheme.typography.bodySmall)
         }
         Box(

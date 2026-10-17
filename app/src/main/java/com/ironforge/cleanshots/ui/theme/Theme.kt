@@ -6,7 +6,12 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
+import com.ironforge.cleanshots.R
 import androidx.compose.ui.unit.sp
 
 val Background = Color(0xFF07090D)
@@ -38,11 +43,21 @@ private val Scheme = darkColorScheme(
     outline = Stroke
 )
 
-private val AppTypography = Typography().let { t ->
+@OptIn(ExperimentalTextApi::class)
+private fun manrope(weight: Int) = Font(
+    R.font.manrope,
+    FontWeight(weight),
+    variationSettings = FontVariation.Settings(FontVariation.weight(weight))
+)
+
+/** Manrope (SIL OFL 1.1, see assets/licenses); scripts it lacks fall back to the system font. */
+val Manrope = FontFamily(listOf(400, 500, 600, 700, 800).map(::manrope))
+
+private val AppTypography = Typography().withFamily(Manrope).let { t ->
     t.copy(
-        displayMedium = t.displayMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = (-1.5).sp),
-        displaySmall = t.displaySmall.copy(fontWeight = FontWeight.Bold, letterSpacing = (-1).sp),
-        headlineMedium = t.headlineMedium.copy(fontWeight = FontWeight.Bold, letterSpacing = (-0.5).sp),
+        displayMedium = t.displayMedium.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = (-1.5).sp),
+        displaySmall = t.displaySmall.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = (-1).sp),
+        headlineMedium = t.headlineMedium.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp),
         headlineSmall = t.headlineSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = (-0.25).sp),
         titleLarge = t.titleLarge.copy(fontWeight = FontWeight.SemiBold),
         titleMedium = t.titleMedium.copy(fontWeight = FontWeight.SemiBold),
@@ -50,6 +65,24 @@ private val AppTypography = Typography().let { t ->
         labelSmall = t.labelSmall.copy(fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp)
     )
 }
+
+private fun Typography.withFamily(family: FontFamily) = Typography(
+    displayLarge = displayLarge.copy(fontFamily = family),
+    displayMedium = displayMedium.copy(fontFamily = family),
+    displaySmall = displaySmall.copy(fontFamily = family),
+    headlineLarge = headlineLarge.copy(fontFamily = family),
+    headlineMedium = headlineMedium.copy(fontFamily = family),
+    headlineSmall = headlineSmall.copy(fontFamily = family),
+    titleLarge = titleLarge.copy(fontFamily = family),
+    titleMedium = titleMedium.copy(fontFamily = family),
+    titleSmall = titleSmall.copy(fontFamily = family),
+    bodyLarge = bodyLarge.copy(fontFamily = family),
+    bodyMedium = bodyMedium.copy(fontFamily = family),
+    bodySmall = bodySmall.copy(fontFamily = family),
+    labelLarge = labelLarge.copy(fontFamily = family),
+    labelMedium = labelMedium.copy(fontFamily = family),
+    labelSmall = labelSmall.copy(fontFamily = family)
+)
 
 @Composable
 fun CleanShotsTheme(content: @Composable () -> Unit) {

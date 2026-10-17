@@ -1,5 +1,7 @@
 package com.ironforge.cleanshots.ui.permissions
 
+import com.ironforge.cleanshots.R
+import androidx.compose.ui.res.stringResource
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -59,9 +61,9 @@ fun accessState(ctx: Context): String {
 
 fun requiredPermissions(): Array<String> {
     return if (Build.VERSION.SDK_INT >= 34) {
-        arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
+        arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED)
     } else if (Build.VERSION.SDK_INT >= 33) {
-        arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        arrayOf(Manifest.permission.READ_MEDIA_IMAGES, Manifest.permission.READ_MEDIA_VIDEO)
     } else {
         arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
     }
@@ -101,26 +103,26 @@ private fun Onboarding(onAllow: () -> Unit) {
         }
         Spacer(Modifier.height(28.dp))
         Text(
-            "A lighter gallery in minutes",
+            stringResource(R.string.onboarding_title),
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
             modifier = Modifier.enterAnimation(1)
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "CleanShots finds screenshots, duplicate and blurry photos so you can clear them in a few taps.",
+            stringResource(R.string.onboarding_body),
             color = Muted,
             textAlign = TextAlign.Center,
             modifier = Modifier.enterAnimation(1)
         )
         Spacer(Modifier.height(28.dp))
         Column(Modifier.enterAnimation(2), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Promise(Icons.Rounded.PhoneAndroid, "Analysed on your phone", "Your photos are never uploaded")
-            Promise(Icons.Rounded.Restore, "Trash first, always", "Undo anything for 30 days")
-            Promise(Icons.Rounded.Shield, "You stay in control", "Android asks before anything is removed")
+            Promise(Icons.Rounded.PhoneAndroid, stringResource(R.string.promise_device_title), stringResource(R.string.promise_device_sub))
+            Promise(Icons.Rounded.Restore, stringResource(R.string.promise_trash_title), stringResource(R.string.promise_trash_sub))
+            Promise(Icons.Rounded.Shield, stringResource(R.string.promise_control_title), stringResource(R.string.promise_control_sub))
         }
         Spacer(Modifier.height(32.dp))
-        GradientButton("Allow photo access", onClick = onAllow, modifier = Modifier.fillMaxWidth().enterAnimation(3))
+        GradientButton(stringResource(R.string.onboarding_allow), onClick = onAllow, modifier = Modifier.fillMaxWidth().enterAnimation(3))
     }
 }
 
