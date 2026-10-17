@@ -87,7 +87,7 @@ fun ScreenshotsScreen(
             }) { Text(if (selected.size == ui.shots.size) "Deselect all" else "Select all", color = Accent) }
             Button(
                 onClick = {
-                    if (!isPremium && freeUsed + selected.size > PrefsManager.FREE_LIMIT) { onNeedPremium(); return@Button }
+                    if (PrefsManager.exceedsFreeLimit(isPremium, freeUsed, selected.size)) { onNeedPremium(); return@Button }
                     val chosen = ui.shots.filter { it.mediaId in selected }
                     val uris = chosen.map { it.contentUri.toUri() }
                     if (uris.isEmpty()) return@Button

@@ -24,5 +24,10 @@ class PrefsManager(private val context: Context) {
         context.ds.edit { it[Keys.FREE_DELETE_COUNT] = ((it[Keys.FREE_DELETE_COUNT] ?: 0) + by).coerceAtLeast(0) }
     }
 
-    companion object { const val FREE_LIMIT = 20 }
+    companion object {
+        const val FREE_LIMIT = 20
+
+        fun exceedsFreeLimit(isPremium: Boolean, used: Int, adding: Int): Boolean =
+            !isPremium && used + adding > FREE_LIMIT
+    }
 }

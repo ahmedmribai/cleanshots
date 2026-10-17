@@ -1,8 +1,12 @@
 package com.ironforge.cleanshots
 
+import android.Manifest
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BrokenImage
@@ -83,9 +87,14 @@ private fun AppShell(access: String) {
     val freeUsed by app.container.prefs.freeDeleteCount.collectAsState(initial = 0)
     val trashUi by trashVm.ui.collectAsState()
 
+    val notificationPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     LaunchedEffect(access) {
         trashVm.load()
-        if (access != "denied") scanVm.start()
+        if (access != "denied") {
+            scanVm.start()
+            if (Build.VERSION.SDK_INT >= 33) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     }
 
     if (showPaywall) {

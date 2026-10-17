@@ -139,7 +139,7 @@ class ScanRepository(private val context: Context, private val dao: ScanDao) {
     suspend fun blurry(threshold: Double = BlurUtils.DEFAULT_THRESHOLD): List<ScannedImage> =
         withContext(Dispatchers.Default) {
             dao.getAllHashed()
-                .filter { (it.blurScore?.toDouble() ?: Double.MAX_VALUE) < threshold }
+                .filter { (it.blurScore?.toDouble() ?: BlurUtils.UNMEASURABLE) < threshold }
                 .filterNot { MediaStoreScanner.isScreenshot(it.relativePath, it.bucket, it.displayName) }
                 .sortedBy { it.blurScore }
         }

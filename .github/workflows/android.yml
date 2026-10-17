@@ -10,4 +10,5 @@ jobs:
           distribution: temurin
           java-version: 17
       - uses: gradle/actions/setup-gradle@v4
-      - run: ./gradlew testDebugUnitTest assembleDebug lintDebug
+      - name: Unit tests, lint and release build
+        run: ./gradlew testDebugUnitTest lintRelease assembleDebug bundleRelease

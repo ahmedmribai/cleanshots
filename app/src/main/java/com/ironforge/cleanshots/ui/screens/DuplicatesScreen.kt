@@ -102,7 +102,7 @@ fun DuplicatesScreen(
                             onClick = {
                                 val toDelete = group.dupes.filter { it.mediaId in checked }
                                 if (toDelete.isEmpty()) return@Button
-                                if (!isPremium && freeUsed + toDelete.size > PrefsManager.FREE_LIMIT) { onNeedPremium(); return@Button }
+                                if (PrefsManager.exceedsFreeLimit(isPremium, freeUsed, toDelete.size)) { onNeedPremium(); return@Button }
                                 if (!requester.isSupported) {
                                     scope.launch { snack.showSnackbar(TRASH_UNSUPPORTED_MESSAGE) }
                                     return@Button

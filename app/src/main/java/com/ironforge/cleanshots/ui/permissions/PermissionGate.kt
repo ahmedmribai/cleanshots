@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.ironforge.cleanshots.ui.theme.Accent
@@ -68,8 +70,12 @@ fun PermissionGate(content: @Composable (access: String, reselect: () -> Unit) -
 
     if (access == "denied" && showRationale) {
         Column(Modifier.fillMaxSize().padding(24.dp), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("We need to access photos only to find screenshots/duplicates on device")
-            Text("100% on-device. No uploads. You can remove access anytime.", color = Muted)
+            Text("Free up space in three taps", fontSize = 22.sp, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(12.dp))
+            Text("CleanShots finds screenshots, duplicate photos and blurry photos so you can remove them.", color = Muted)
+            Spacer(Modifier.height(12.dp))
+            Text("To do that it needs to read your photos.")
+            Text("Everything is analysed on your device. Nothing is uploaded, and deleted photos go to Trash first so you can undo.", color = Muted)
             Spacer(Modifier.height(16.dp))
             Button(
                 onClick = { launcher.launch(requiredPermissions()) },

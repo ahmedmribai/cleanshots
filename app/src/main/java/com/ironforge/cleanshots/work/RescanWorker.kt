@@ -15,6 +15,9 @@ class RescanWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx
         return try {
             val app = applicationContext as CleanShotsApp
             app.container.scanRepo.fullScan().collect { }
+            val (shots, shotBytes) = app.container.scanRepo.screenshots()
+            val dupes = app.container.scanRepo.duplicateGroups().flatMap { it.dupes }
+            ScanNotifier.notifyReclaimable(applicationContext, shots.size + dupes.size, shotBytes + dupes.sumOf { it.size })
             Result.success()
         } catch (_: SecurityException) {
             // Media permission was revoked; retrying cannot help until the user grants it again.
