@@ -41,6 +41,9 @@ class BillingManager(
     private val _products = MutableStateFlow<Map<String, ProductDetails>>(emptyMap())
     val products: StateFlow<Map<String, ProductDetails>> = _products
 
+    private val _acknowledgementPending = MutableStateFlow(false)
+    val acknowledgementPending: StateFlow<Boolean> = _acknowledgementPending
+
     private val client = BillingClient.newBuilder(appCtx)
         .setListener(this)
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
@@ -83,10 +86,15 @@ class BillingManager(
         purchaseState == Purchase.PurchaseState.PURCHASED && products.any { it in Products.ALL }
 
     private fun acknowledgeIfNeeded(p: Purchase) {
-        if (p.isActiveEntitlement() && !p.isAcknowledged) {
-            client.acknowledgePurchase(
-                AcknowledgePurchaseParams.newBuilder().setPurchaseToken(p.purchaseToken).build()
-            ) { }
+        if (!p.isActiveEntitlement() || p.isAcknowledged) return
+
+        client.acknowledgePurchase(
+            AcknowledgePurchaseParams.newBuilder().setPurchaseToken(p.purchaseToken).build()
+        ) { result ->
+            // A failed acknowledgement is retried on the next successful Play sync.
+            // Never grant entitlement based on acknowledgement success alone.
+            _acknowledgementPending.value =
+                result.responseCode != BillingClient.BillingResponseCode.OK
         }
     }
 
@@ -130,7 +138,9 @@ class BillingManager(
         if (result.responseCode != BillingClient.BillingResponseCode.OK || purchases == null) return
         scope.launch {
             purchases.forEach(::acknowledgeIfNeeded)
-            if (purchases.any { it.isActiveEntitlement() }) prefs.setPremium(true)
+            // Re-query both product types instead of trusting the callback payload as the
+            // complete entitlement snapshot. This also avoids leaving a stale local flag behind.
+            refreshPremium()
         }
     }
 }
