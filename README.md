@@ -7,8 +7,8 @@ Package `com.ironforge.cleanshots`, Kotlin + Compose M3, minSdk 26, targetSdk/co
 - **No accompanist**: deprecated. Uses `RequestMultiplePermissions`.
 - **Billing 9.1.0 + billing-ktx**: PBL 6 expired Aug 2025. Uses `ProductDetails`, `acknowledge`, `queryPurchasesAsync`, auto-reconnect.
 - **dHash (not pHash) + BK-Tree threshold 5**: 3-5x faster, 20-80ms grouping for 2000. Single 256px `loadThumbnail` reused for hash + Laplacian blur (threshold 100 tunable).
-- **Pricing fixed**: your $9.99 lifetime < $19.99 yearly kills LTV. Ships Weekly $4.99 / Yearly $29.99 / Lifetime $59.99 with trials. Keep your IDs + added `cleanshots_weekly_4_99`. Change prices in Play Console to match.
-- **Free 20 deletes**: contextual paywall when a delete would exceed the limit. Premium is stored on-device (no server receipt check).
+- **Pricing**: ships Weekly / Yearly / Lifetime plans. Product-ID suffixes are historical; the paywall displays prices returned by Google Play. Configure current prices and offers in Play Console and verify them with a license tester.
+- **Free 20 deletes**: contextual paywall when a delete would exceed the limit. Premium is cached on-device and re-synced from Google Play; this repository does not perform server-side purchase-token verification.
 - **Trash needs Android 11+** (`MediaStore.createTrashRequest`); older versions get an explanatory message.
 - **Weekly rescan** via WorkManager (`RescanWorker`, scheduled in `CleanShotsApp`).
 
@@ -23,15 +23,19 @@ Gradle wrapper (8.13) is included. CLI: `./gradlew testDebugUnitTest lintDebug a
 Create `local.properties` with `sdk.dir=...` if Android Studio has not.
 
 ## Create products in Play Console
-- `cleanshots_weekly_4_99` SUBS $4.99/week 3-day trial
-- `cleanshots_yearly_19_99` SUBS $29.99/year 7-day trial (rename price, keep ID)
-- `cleanshots_lifetime_9_99` INAPP $59.99 (raise price, keep ID)
+- `cleanshots_weekly_4_99` — subscription
+- `cleanshots_yearly_19_99` — subscription
+- `cleanshots_lifetime_9_99` — one-time in-app product
+
+Product IDs are fixed after creation; their suffixes are historical labels, not authoritative prices. Configure current prices, base plans, and offers in Play Console. The paywall displays formatted prices returned by Google Play `ProductDetails`.
 
 ## Before submission
-- Data safety form; set `PRIVACY_POLICY_URL` in `PaywallScreen.kt` (hidden while blank) and the Play listing
+- Complete the Data safety form and ensure it matches the shipped app and all SDK/network behavior. The paywall currently links to `https://ahmedmribai.github.io/cleanshots/`; verify that policy is live and accurate.
 - Photo permission declaration video: show scan -> duplicates -> trash -> restore
 - Title/desc match real function, no virus/boost claims
-- `bundleRelease` signed AAB (add a signing config), R8 already on, logs stripped
+- `bundleRelease` signed AAB: add a signing config, keep keystore/passwords out of Git, verify the signature, and test through an internal track
+- Complete purchase lifecycle tests (purchase, pending, cancel, restore, offline, acknowledgement failure, expiry/refund) before charging users
+- See [the source-based pre-release audit](docs/pre-release-audit.md) for confirmed risks, release gates, and review scope
 
 ## Tools
 - `python tools/translations/generate.py` rebuilds `values-*/strings.xml` from `tools/translations/*.py`
