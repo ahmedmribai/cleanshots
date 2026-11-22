@@ -28,6 +28,11 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;36.0.0'
+
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
@@ -42,3 +47,10 @@ jobs:
 
       - name: Assemble debug APK
         run: ./gradlew --no-daemon assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cleanshots-debug-apk
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
