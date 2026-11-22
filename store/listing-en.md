@@ -29,7 +29,7 @@ Fly through screenshots and blurry photos one card at a time: swipe left to clea
 **Private by design**
 • All analysis happens on your phone
 • No account, no ads, no analytics, no uploads
-• Works with only the photos you choose to share
+• Scans the photos and videos covered by the media access you grant (full-library or selected-media access)
 
 **Free to try**
 Clean your first 20 items free. Upgrade to CleanShots Pro (weekly, yearly or a one-time lifetime purchase) for unlimited cleaning.
