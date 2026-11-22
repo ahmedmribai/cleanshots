@@ -41,6 +41,9 @@ class BillingManager(
     private val _products = MutableStateFlow<Map<String, ProductDetails>>(emptyMap())
     val products: StateFlow<Map<String, ProductDetails>> = _products
 
+    private val _acknowledgementPending = MutableStateFlow(false)
+    val acknowledgementPending: StateFlow<Boolean> = _acknowledgementPending
+
     private val client = BillingClient.newBuilder(appCtx)
         .setListener(this)
         .enablePendingPurchases(PendingPurchasesParams.newBuilder().enableOneTimeProducts().build())
@@ -90,9 +93,8 @@ class BillingManager(
         ) { result ->
             // A failed acknowledgement is retried on the next successful Play sync.
             // Never grant entitlement based on acknowledgement success alone.
-            if (result.responseCode != BillingClient.BillingResponseCode.OK) {
-                scope.launch { refreshPremium() }
-            }
+            _acknowledgementPending.value =
+                result.responseCode != BillingClient.BillingResponseCode.OK
         }
     }
 
